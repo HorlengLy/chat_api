@@ -87,16 +87,18 @@ class Message extends BaseController {
     }
 
     async getFriends() {
-        const id = this.req.params.id;
+        const user = this.req.user
+        if(!user)
+            return this.response(process.env.UNAUTHENTICATION,{message : "UNAUTHENTICATION",statusCode : process.env.UNAUTHENTICATION})
         try {
-            const members = await roomModel.find({
-                members: {
-                    $in: id
+            const rooms = await roomModel.find({
+                members:{
+                    $in:user.information._id
                 }
             }).populate('members')
             return this.response(process.env.OK, {
                 message: "ok",
-                members,
+                rooms,
                 statusCode : process.env.OK
             })
         } catch (error) {

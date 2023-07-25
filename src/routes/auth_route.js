@@ -10,18 +10,12 @@ authRoute.post('/login',(req,res) => new Controller(req,res).Login())
 authRoute.post('/register',(req,res) => new Controller(req,res).signUp())
 // user verify email
 authRoute.post('/verify-email',(req,res) => new Controller(req,res).verifyEmail())
-// update information
-authRoute.patch("/update-info/:id",(req,res) => new Controller(req,res).setInformation())
-// update password
-authRoute.patch("/update-password/:id",(req,res) => new Controller(req,res).updatePassword())
 // verify token
 authRoute.get('/verify-token',(req,res) => new Controller(req,res).verifyToken())
 // views profile
 authRoute.get('/get-profile-details/:id',middleware.requireAuth,(req,res) => new Controller(req,res).getProfileDeatil())
 // verify otp
 authRoute.post('/verify-otp',(req,res) => new Controller(req,res).verifyOTP())
-// get otp
-authRoute.post('/get-otp',(req,res) => new Controller(req,res).getOTP())
 // set new password
 authRoute.post('/set-password',(req,res) => new Controller(req,res).setNewPassword())
 // check email

@@ -33,7 +33,7 @@ class User extends BaseController {
                 })
             if (user.information?.isDeleted) {
                 return this.response(process.env.UNAUTHENTICATION, {
-                    message: "this account has been bloked by administrator",
+                    message: "this account has been bloked by admin",
                     statusCode: process.env.UNAUTHENTICATION
                 })
             }
@@ -79,7 +79,7 @@ class User extends BaseController {
                     message: "low internet connection",
                     statusCode: process.env.ERROR
                 })
-            await roomModel.create({ roomType: 'PERSONAL', members: [createInfo._id, process.env.ADMIN_ID] })
+            await roomModel.create({ roomType: 'PERSONAL', members: [createInfo._id, process.env.SUPER_ADMIN] })
             return this.response(process.env.CREATE, {
                 message: "okay, created",
                 statusCode: process.env.CREATE
@@ -155,15 +155,23 @@ class User extends BaseController {
                 statusCode: process.env.ERROR
             })
         try {
-            jwt.verify(token, process.env.TOKEN_KEY, (err, result) => {
+            jwt.verify(token, process.env.TOKEN_KEY, async(err, result) => {
                 if (err) 
                     return this.response(process.env.UNAUTHENTICATION,{
                         message : err.message,
                         statusCode : process.env.UNAUTHENTICATION
                     })
+                const user = await userModel.findById(result.user._id).populate('information')
+                if(user?.information?.isDeleted){
+                    return this.response(process.env.UNAUTHENTICATION, {
+                        message: "Account has been blocked by admin",
+                        data: null,
+                        statusCode: process.env.UNAUTHENTICATION
+                    })
+                }
                 return this.response(process.env.OK, {
-                    message: "ok",
-                    data: result,
+                    message: "okay",
+                    data: user,
                     statusCode: process.env.OK
                 })
             })
@@ -706,8 +714,7 @@ class User extends BaseController {
         }
 
     }
-
-    // }
+    
 }
 
 module.exports = User

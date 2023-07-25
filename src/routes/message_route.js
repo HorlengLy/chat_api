@@ -6,7 +6,7 @@ const messageRoute = express.Router()
 // create room
 messageRoute.post('/create-room',(req,res)=>new controller(req,res).createRoom())
 // get friend list
-messageRoute.get('/get-friend/:id',(req,res)=>new controller(req,res).getFriends())
+messageRoute.get('/get-friend',(req,res)=>new controller(req,res).getFriends())
 // sending message
 messageRoute.post("/send-message/:room",(req,res) => new controller(req,res).sendMessage())
 // get messages
