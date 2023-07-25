@@ -1,21 +1,21 @@
 const express = require('express');
 const dotenv = require('dotenv');
 dotenv.config();
-require("../database")
-const auth_route = require("../routes/auth_route")
-const message_route = require("../routes/message_route")
-const Middleware = require("../middleware")
+require("./database")
+const auth_route = require("./routes/auth_route")
+const message_route = require("./routes/message_route")
+const Middleware = require("./middleware")
 const cloudinary = require('cloudinary').v2;
 const cors = require("cors")
-const update_route = require("../routes/update_route")
-const otp_route = require("../routes/otp_route")
+const update_route = require("./routes/update_route")
+const otp_route = require("./routes/otp_route")
 const app = express()
 const middleware = new Middleware()
 const {Server} = require('socket.io');
 const server = require('http').createServer(app);
 const io = new Server(server,{
   cors:{
-      origin:"https://kh-chat.vercel.app/",
+      origin:"https://khmer-chat.vercel.app/",
       methods:["GET","POST"]
   }});
 
@@ -31,7 +31,7 @@ cloudinary.config({
 app.use(express.json({ limit: "50mb" }))
 app.use(express.urlencoded({ extended: true }))
 app.use(cors({
-  origin: ["https://kh-chat.vercel.app/"],
+  origin: ["https://khmer-chat.vercel.app/"],
   methods: ["GET", "POST", "DELETE", "PATCH"]
 }));
 // routes
