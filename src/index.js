@@ -23,7 +23,7 @@ cloudinary.config({
 app.use(express.json({ limit: "50mb" }))
 app.use(express.urlencoded({ extended: true }))
 app.use(cors({
-  origin: "https://khmer-chat.netlify.app",
+  origin: "https://chat-i1y0fre7z-horlengly.vercel.app",
   methods: ["GET", "POST", "DELETE", "PATCH"]
 }));
 // routes
