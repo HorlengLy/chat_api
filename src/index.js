@@ -11,6 +11,27 @@ const update_route = require("./routes/update_route")
 const otp_route = require("./routes/otp_route")
 const app = express()
 const middleware = new Middleware()
+// confige cloude
+cloudinary.config({
+    cloud_name : process.env.CLOUND_NAME,
+    api_key    : process.env.CLOUND_API_KEY,
+    api_secret : process.env.CLOUND_API_SECRET_KEY,
+    secure: true
+  });
+// middlware
+app.use(express.json({ limit: "50mb" }))
+app.use(express.urlencoded({ extended: true }))
+app.use(cors({
+  origin: "https://khmer-chat.vercel.app/",
+  methods: ["GET", "POST", "DELETE", "PATCH"]
+}));
+// routes
+app.use('/api/auth', auth_route)
+app.use('/api/ms', middleware.requireAuth, message_route)
+app.use('/api/update', middleware.requireAuth, update_route)
+app.use('/api/otp', otp_route)
+
+// socket configuration
 const {Server} = require('socket.io');
 const server = require('http').createServer(app);
 const io = new Server(server,{
@@ -19,26 +40,6 @@ const io = new Server(server,{
       methods:["GET","POST"]
   }});
 
-// confige cloude
-cloudinary.config({
-  cloud_name : process.env.CLOUND_NAME,
-  api_key    : process.env.CLOUND_API_KEY,
-  api_secret : process.env.CLOUND_API_SECRET_KEY,
-  secure: true
-});
-
-// middlware
-app.use(express.json({ limit: "50mb" }))
-app.use(express.urlencoded({ extended: true }))
-app.use(cors({
-  origin: ["https://khmer-chat.vercel.app/"],
-  methods: ["GET", "POST", "DELETE", "PATCH"]
-}));
-// routes
-app.use('/api/auth', auth_route)
-app.use('/api/ms', middleware.requireAuth, message_route)
-app.use('/api/update', middleware.requireAuth, update_route)
-app.use('/api/otp', otp_route)
 server.listen(process.env.PORT, () => console.log(`server runing at port ${process.env.PORT}`))
 
 // web socket
