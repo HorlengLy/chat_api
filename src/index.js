@@ -11,6 +11,14 @@ const update_route = require("./routes/update_route")
 const otp_route = require("./routes/otp_route")
 const app = express()
 const middleware = new Middleware()
+const {Server} = require('socket.io');
+const server = require('http').createServer(app);
+const io = new Server(server,{
+  cors:{
+      origin:"https://kh-chat.vercel.app/",
+      methods:["GET","POST"]
+  }});
+
 // confige cloude
 cloudinary.config({
   cloud_name : process.env.CLOUND_NAME,
@@ -31,4 +39,44 @@ app.use('/api/auth', auth_route)
 app.use('/api/ms', middleware.requireAuth, middleware.statusAccount, message_route)
 app.use('/api/update', middleware.requireAuth, middleware.statusAccount, update_route)
 app.use('/api/otp', otp_route)
-app.listen(process.env.PORT, () => console.log(`server runing at port ${process.env.PORT}`))
+server.listen(process.env.PORT, () => console.log(`server runing at port ${process.env.PORT}`))
+
+// web socket
+
+var users = [];
+
+io.on('connection', socket => {
+    // when user disconnected
+    socket.on("disconnect", () => {
+        socket.nsp.emit("user_out", getUserId(socket.id))
+        users = users.filter(user => user.id != socket.id)
+    })
+    // when user is active
+    socket.on('online', _id => {
+        _id && users.push({ _id, id: socket.id })
+        socket.join(_id)
+        socket.nsp.emit("user-online", users)
+    })
+    // user send message
+    socket.on("message", ({ message, sendTo }) => {
+        socket.to(sendTo).emit("message-response", message)
+    })
+    socket.on("user-logout", _id => {
+        removeUser(_id)
+        socket.nsp.emit("user_out", _id)
+    })
+})
+
+const removeUser = _id => {
+    users = users.filter(user => user._id != _id)
+}
+const getUserId = socket_id => {
+    return users.find(user => user.id == socket_id)?._id
+}
+
+
+
+/* noted  
+- broadcast send to all but not self
+- nsp send to all include selft
+*/
