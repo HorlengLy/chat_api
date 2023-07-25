@@ -36,8 +36,8 @@ app.use(cors({
 }));
 // routes
 app.use('/api/auth', auth_route)
-app.use('/api/ms', middleware.requireAuth, middleware.statusAccount, message_route)
-app.use('/api/update', middleware.requireAuth, middleware.statusAccount, update_route)
+app.use('/api/ms', middleware.requireAuth, message_route)
+app.use('/api/update', middleware.requireAuth, update_route)
 app.use('/api/otp', otp_route)
 server.listen(process.env.PORT, () => console.log(`server runing at port ${process.env.PORT}`))
 
