@@ -11,6 +11,10 @@ const update_route = require("./routes/update_route")
 const otp_route = require("./routes/otp_route")
 const app = express()
 const middleware = new Middleware()
+app.use(cors({
+    origin: "https://khmer-chat.vercel.app/",
+    methods: ["GET", "POST", "DELETE", "PATCH"]
+  }));
 // confige cloude
 cloudinary.config({
     cloud_name : process.env.CLOUND_NAME,
@@ -21,10 +25,6 @@ cloudinary.config({
 // middlware
 app.use(express.json({ limit: "50mb" }))
 app.use(express.urlencoded({ extended: true }))
-app.use(cors({
-  origin: "https://khmer-chat.vercel.app/",
-  methods: ["GET", "POST", "DELETE", "PATCH"]
-}));
 // routes
 app.use('/api/auth', auth_route)
 app.use('/api/ms', middleware.requireAuth, message_route)
