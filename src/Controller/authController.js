@@ -227,7 +227,6 @@ class User extends BaseController {
 
     setNewPassword = async () => {
         const { email, password } = this.req.body;
-        console.log({ email, password });
         if (!email || !password)
             return this.response(process.env.ERROR, {
                 message: "data is required",
@@ -598,7 +597,6 @@ class User extends BaseController {
         while (otp.toString().length < 4) {
             otp = this.generateOtp()
         }
-        console.log({otp});
         if (!email || !otp)
             return this.response(process.env.ERROR, {
                 message: "all field are required",
@@ -645,7 +643,6 @@ class User extends BaseController {
         while (otp < 1000) {
             otp = this.generateOtp()
         }
-        console.log({otp});
         try {
             const save = await otpModel.create({
                 email,
