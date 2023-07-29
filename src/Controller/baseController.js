@@ -21,9 +21,9 @@ class BaseController {
 
         return token
     }
-    getSubToken(data){
+    getSubToken(user){
         const token = jwt.sign({
-            email : data?.email
+            user
         }, process.env.TOKEN_KEY,{expiresIn:"5m"})
 
         return token

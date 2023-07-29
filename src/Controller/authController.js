@@ -247,7 +247,7 @@ class User extends BaseController {
                     statusCode: process.env.ERROR
                 })
             return this.response(process.env.OK, {
-                message: "required",
+                message: "password was changed successfully",
                 statusCode: process.env.OK
             })
 
@@ -547,27 +547,18 @@ class User extends BaseController {
                 statusCode: process.env.ERROR
             })
         try {
-            const check = await userModel.findOne({
-                email
-            })
+            const check = await userModel.findOne({email})
             if (check) {
-                if (check.information.isDeleted) {
-                    return this.response(process.env.UNAUTHENTICATION, {
-                        message: "this account has been bloked by administrator",
-                        statusCode: process.env.UNAUTHENTICATION,
-                    })
-                }
-                else
-                    return this.response(process.env.ERROR, {
-                        message: "this email is already exist",
-                        statusCode: process.env.ERROR,
-                        isFound: true
-                    })
+                return this.response(process.env.ERROR, {
+                    message: "this email is already exist",
+                    statusCode: process.env.ERROR,
+                    isFound: true
+                })
             }
             return this.response(process.env.OK, {
                 statusCode: process.env.OK,
                 isFound: false,
-                message: "ok"
+                message: "unknown is email"
             })
         } catch (e) {
             console.log({ e });
