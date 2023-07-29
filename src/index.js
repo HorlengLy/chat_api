@@ -12,7 +12,7 @@ const otp_route = require("./routes/otp_route")
 const app = express()
 const middleware = new Middleware()
 app.use(cors({
-    origin: ["https://kh-chat.netlify.app","http://localhost:5173"],
+    origin: ["https://kh-chat.vercel.app","http://localhost:5173"],
     methods: ["GET", "POST", "DELETE", "PATCH"]
   }));
 // confige cloude
@@ -36,7 +36,7 @@ const {Server} = require('socket.io');
 const server = require('http').createServer(app);
 const io = new Server(server,{
   cors:{
-      origin:["https://kh-chat.netlify.app","http://localhost:5173"],
+      origin:["https://kh-chat.vercel.app","http://localhost:5173"],
       methods:["GET","POST"]
   }});
 
