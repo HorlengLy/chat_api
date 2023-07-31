@@ -146,38 +146,9 @@ class User extends BaseController {
             console.log(error);
         }
     }
-    async verifyToken() {
-        let token = this.req.headers['authorization'];
-        token = token?.split(" ")[1]
-        if (!token || token == " ")
-            return this.response(process.env.ERROR, {
-                message: "token is required",
-                statusCode: process.env.ERROR
-            })
-        try {
-            jwt.verify(token, process.env.TOKEN_KEY, async(err, result) => {
-                if (err) 
-                    return this.response(process.env.UNAUTHENTICATION,{
-                        message : err.message,
-                        statusCode : process.env.UNAUTHENTICATION
-                    })
-                const user = await userModel.findById(result.user._id).populate('information')
-                if(user?.information?.isDeleted){
-                    return this.response(process.env.UNAUTHENTICATION, {
-                        message: "Account has been blocked by admin",
-                        data: null,
-                        statusCode: process.env.UNAUTHENTICATION
-                    })
-                }
-                return this.response(process.env.OK, {
-                    message: "okay",
-                    data: user,
-                    statusCode: process.env.OK
-                })
-            })
-        } catch (error) {
-            console.log(error);
-        }
+    async GET_PROFILE() {
+        const {user} = this.req
+        return this.response(process.env.OK,{message:"OK",user,statusCode: process.env.OK})
     }
 
     // profile request

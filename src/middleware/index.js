@@ -1,50 +1,83 @@
-const jwt = require("jsonwebtoken")
-class Middleware {
-
-    requireAuth(req,res,next){
-        let token = req.headers['authorization'];
-        if(token && token.includes(" "))
+const jwt = require("jsonwebtoken");
+const BaseController = require("../Controller/baseController");
+const userModel = require("../Model/userModel");
+class Middleware extends BaseController {
+    constructor(req, res, next) {
+        super()
+        this.req = req;
+        this.res = res;
+        this.next = next;
+    }
+    requireAuth() {
+        let token = this.req.headers['authorization'];
+        if (token && token.includes(" "))
             token = token.split(" ")[1]
-        if(!token) 
-            return res.status(Number(process.env.UNAUTHENTICATION))
-            .json({
-                message : "unAuthentication",
-                statusCode : process.env.UNAUTHENTICATION
+        if (!token)
+            return this.response(process.env.UNAUTHENTICATION, { message: "unAuthenticated", statusCode: process.env.UNAUTHENTICATION })
+        try {
+            jwt.verify(token, process.env.TOKEN_KEY, async (error, result) => {
+                if (error)
+                    return this.response(process.env.UNAUTHENTICATION, { message: "unAuthenticated", statusCode: process.env.UNAUTHENTICATION })
+                const user = await userModel.findById(result.user?._id).populate('information')
+                if (!user) {
+                    return this.response(process.env.UNAUTHENTICATION, { message: "UN_AUTHENTICATED", statusCode: process.env.UNAUTHENTICATION })
+                }
+                if(user.information?.isDeleted){
+                    return this.response(process.env.UNAUTHENTICATION, { message: "this account has blocked by admin", statusCode: process.env.UNAUTHENTICATION })
+                }
+                else {
+                    this.req.user = user
+                    this.next()
+                }
             })
-        try{
-            jwt.verify(token,process.env.TOKEN_KEY,(error,result)=>{
-                if(error) 
-                    return res.status(Number(process.env.UNAUTHENTICATION))
-                    .json({
-                        message:"unAuthentication",
-                        statusCode : process.env.UNAUTHENTICATION
-                    })
-                req.user = result.user
-                next()
-            })
-        }catch(err){
-            console.log({err});
+        } catch (err) {
+            console.log({ err });
         }
     }
-    statusAccount(req,res,next){
-        const user = req.user
-        if(!user){
-            return res.status(Number(process.env.UNAUTHENTICATION)).json({
-                data : {
-                    message : "UNAUTHENTICATION",
-                    statusCode : process.env.UNAUTHENTICATION
+    requiredAdminAccount() {
+        let token = this.req.headers['authorization'];
+        if (token && token.includes(" "))
+            token = token.split(" ")[1]
+        if (!token) {
+            return this.response(process.env.UNAUTHENTICATION, { message: "unAuthenticated", statusCode: process.env.UNAUTHENTICATION })
+        }
+        try {
+            jwt.verify(token, process.env.TOKEN_KEY, async(error, result) => {
+                if (error) {
+                    return this.response(process.env.UNAUTHENTICATION, { message: "unAuthenticated", statusCode: process.env.UNAUTHENTICATION })
+                }
+                const user = await userModel.findById(result?.user?._id).populate('information')
+                if(user?.information?.isDeleted){
+                    return this.response(process.env.UNAUTHENTICATION, { message: "this account has blocked by admin", statusCode: process.env.UNAUTHENTICATION })
+                }
+                if (!user) {
+                    return this.response(process.env.UNAUTHENTICATION, { message: "UN_AUTHENTICATED", statusCode: process.env.UNAUTHENTICATION })
+                }
+                else {
+                    if (user.information?.role == "ADMIN" || user.information?.role == "SUPER_ADMIN") {
+                        this.req.user = user
+                        this.next()
+                    }
+                    else {
+                        return this.response(process.env.FORBIDDEN, { message: "Can't access", statusCode: process.env.FORBIDDEN })
+                    }
                 }
             })
         }
-        if(user.information?.isDeleted){
-            return res.status(Number(process.env.UNAUTHENTICATION)).json({
-                data : {
-                    message : "Account has been bloked by administrator",
-                    statusCode : process.env.UNAUTHENTICATION
-                }
-            })
+        catch (error) {
+            throw new Error(error)
         }
-        next()
+
+    }
+    statusAccount() {
+        const user = this.req.user
+        if (!user) {
+            return this.response(process.env.UNAUTHENTICATION, { message: "UNAUTHENTICATION", statusCode: process.env.UNAUTHENTICATION })
+        }
+        if (user.information?.isDeleted) {
+            return this.response(process.env.UNAUTHENTICATION, { message: "Account has been bloked by administrator", statusCode: process.env.UNAUTHENTICATION })
+        }
+        this.next()
     }
 }
 

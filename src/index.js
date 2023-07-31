@@ -9,8 +9,8 @@ const cloudinary = require('cloudinary').v2;
 const cors = require("cors")
 const update_route = require("./routes/update_route")
 const otp_route = require("./routes/otp_route")
+const dash_route = require("./routes/dashbord_route")
 const app = express()
-const middleware = new Middleware()
 app.use(cors({
     origin: ["https://kh-chat.vercel.app","http://localhost:5173"],
     methods: ["GET", "POST", "DELETE", "PATCH"]
@@ -27,10 +27,10 @@ app.use(express.json({ limit: "50mb" }))
 app.use(express.urlencoded({ extended: true }))
 // routes
 app.use('/api/auth', auth_route)
-app.use('/api/ms', middleware.requireAuth, message_route)
-app.use('/api/update', middleware.requireAuth, update_route)
+app.use('/api/ms', (req,res,next)=>new Middleware(req,res,next).requireAuth(), message_route)
+app.use('/api/update', (req,res,next)=>new Middleware(req,res,next).requireAuth(), update_route)
 app.use('/api/otp', otp_route)
-
+app.use('/api/dashboard',(req,res,next)=>new Middleware(req,res,next).requiredAdminAccount(),dash_route)
 // socket configuration
 const {Server} = require('socket.io');
 const server = require('http').createServer(app);
