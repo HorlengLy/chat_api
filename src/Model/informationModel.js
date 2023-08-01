@@ -35,6 +35,11 @@ const information = new mongoose.Schema({
         type : String,
         required : false,
         default : ""
+    },
+    verified : {
+        type : Boolean,
+        required : false,
+        default : false
     }
     
 },{

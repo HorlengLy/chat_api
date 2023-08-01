@@ -20,15 +20,16 @@ class dashboard extends BaseController {
     async deleteUser(){
         const {id} = this.req.params
         let {isDeleted} = this.req.body
-        if(isDeleted == null){
-            return this.response(process.env.ERROR,{message : "required",statusCode:process.env.ERROR})
+        if(isDeleted !== true && isDeleted !== false){
+            return this.response(process.env.ERROR,{message : "incorrect data provided",statusCode:process.env.ERROR})
         }
         try{
             const update = await informationModel.findByIdAndUpdate(id,{isDeleted},{new:true})
             if(update){
                 this.response(process.env.OK,{
                     message : isDeleted?"user was deleted":'user was enable',
-                    user : update
+                    user : update,
+                    statusCode:process.env.OK
                 })
             }
             else{
@@ -42,8 +43,8 @@ class dashboard extends BaseController {
     async setRole(){
         const {id} = this.req.params
         const {role} = this.req.query
-        if(!role || role == ""){
-            return this.response(process.env.ERROR,{message:"role is required",statusCode:process.env.ERROR})
+        if(role !== "ADMIN" && role !== "USER" && role !== "SUPER_ADMIN"){
+            return this.response(process.env.ERROR,{message:"incorrect data provided",statusCode:process.env.ERROR})
         }
         try{
             const user = await informationModel.findByIdAndUpdate(id,{role},{new : true})
@@ -55,6 +56,23 @@ class dashboard extends BaseController {
             }
 
         }catch(error){
+            throw new Error(error)
+        }
+    }
+    async setVerified(){
+        const {id} = this.req.params
+        const {status} = this.req.body
+        if(status != false && status != true){
+            return this.response(process.env.ERROR,{message : "incorrect data provided",statusCode:process.env.ERROR})
+        }
+        try{
+            const update = await informationModel.findByIdAndUpdate(id,{verified:status},{new:true})
+            if(!update){
+                return this.response(process.env.ERROR,{message:"something went wrong",statusCode:process.env.ERROR})
+            }
+            return this.response(process.env.OK,{message:"user was updated successfully",statusCode:process.env.OK,user:update})
+        }
+        catch(error){
             throw new Error(error)
         }
     }
